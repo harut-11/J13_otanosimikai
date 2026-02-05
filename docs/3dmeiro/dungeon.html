@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Maze Game (Large View + WASD)</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* タイマーエリア */
+        #timer-box {
+            background-color: #000;
+            color: #0f0;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        }
+
+        /* ゲーム画面エリア */
+        .game-container {
+            display: flex;
+            gap: 30px; /* 間隔を少し広げる */
+            align-items: center; /* 上下中央揃え */
+        }
+
+        canvas {
+            background-color: #000;
+            border: 2px solid #555;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
+
+        .canvas-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .canvas-label {
+            margin-top: 8px;
+            color: #aaa;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 操作説明 */
+        .controls-hint {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="timer-box">Time: 0.00s</div>
+
+    <div class="game-container">
+        <div class="canvas-wrapper">
+            <canvas id="view3d" width="440" height="440"></canvas>
+            <span class="canvas-label">3D View</span>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="view2d" width="220" height="220"></canvas>
+            <span class="canvas-label">2D Map</span>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        MOVE: [W/↑] Forward &nbsp; [S/↓] Backward &nbsp; [A/←] Turn Left &nbsp; [D/→] Turn Right
+    </div>
+
+    <script src="dungeon.js"></script>
+</body>
+</html>
