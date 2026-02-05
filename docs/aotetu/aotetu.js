@@ -568,4 +568,6 @@ function processSettlement() {
   });
 }
 
-initMap(); updateDiceVisuals(); render();
+initMap(); 
+updateDiceVisuals(); 
+render();
