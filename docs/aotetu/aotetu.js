@@ -122,6 +122,8 @@ function render() {
   document.getElementById('myPropertyList').innerHTML = myProps.length === 0 ? "なし" : myProps.map(pr => `<div class="prop-item">${pr.name} (${pr.stationName})</div>`).join('');
 }
 
+let isGoalReachedThisYear = false; 
+
 // --- movePlayer 関数内のゴール到達判定部分を修正 ---
 function movePlayer(dice) {
   let steps = 0;
@@ -129,6 +131,7 @@ function movePlayer(dice) {
   let forward = true;
 
   const interval = setInterval(() => {
+    // --- 移動ロジック ---
     if (forward) {
       if (p.pos === TILE_COUNT - 1) {
         forward = false; 
@@ -152,67 +155,76 @@ function movePlayer(dice) {
     if (steps >= dice) {
       clearInterval(interval);
 
-  // --- movePlayer 関数内のゴール判定部分 ---
-  if (p.pos === TILE_COUNT - 1) {
-      addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！`);
-      
-      document.getElementById('rollBtn').style.display = 'none';
-      document.getElementById('stopBtn').style.display = 'none';
-      document.getElementById('endTurnBtn').disabled = true;
+      // --- ゴール到達判定 ---
+      if (p.pos === TILE_COUNT - 1) {
+        
+        // 【追加】① 誰かがゴールしたので、全員に物件配当（決算）を出す
+        processSettlement();
 
-      const currentYearNum = passedYears + 1;
+        // 【追加】② 一番乗りボーナスの付与
+        // ※isGoalReachedThisYear フラグは外部（グローバル）で定義されている前提
+        let bonusMsg = "";
+        if (!isGoalReachedThisYear) {
+          p.money += 30000000;
+          isGoalReachedThisYear = true; // その年度のボーナス終了
+          bonusMsg = `<br>💰 <b>ゴール一番乗りボーナス：¥3,000万獲得！</b>`;
+        }
 
-      if (currentYearNum >= maxYears) {
-          setTimeout(() => {
-              alert(`${p.name} がゴール！${maxYears}年間の全日程を終了しました。`);
-              showFinalResults();
-          }, 500);
+        addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！${bonusMsg}`);
+        
+        document.getElementById('rollBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'none';
+        document.getElementById('endTurnBtn').disabled = true;
+
+        const currentYearNum = passedYears + 1;
+
+        if (currentYearNum >= maxYears) {
+            setTimeout(() => {
+                alert(`${p.name} がゴール！${maxYears}年間の全日程を終了しました。`);
+                showFinalResults();
+            }, 500);
+        } else {
+            setTimeout(() => {
+                alert(`${p.name} がゴール！年度末決算を行い、次の年へ進みます。`);
+
+                passedYears++; 
+                isGoalReachedThisYear = false; // 【追加】次年度のためにフラグをリセット
+
+                // --- 貧乏神の割り当て ---
+                players.forEach(pl => pl.hasBonby = false);
+                let farthestPlayer = players.reduce((prev, curr) => {
+                    return (prev.pos < curr.pos) ? prev : curr;
+                });
+                farthestPlayer.hasBonby = true;
+                isBonbyActive = true; 
+
+                // 2. プレイ順の並び替え
+                players.sort((a, b) => b.pos - a.pos);
+
+                addLog(`😈 貧乏神は最後尾の <span style="color:${farthestPlayer.color}">${farthestPlayer.name}</span> につきました。`);
+
+                // 3. リセット処理
+                players.forEach(pl => pl.pos = 0);
+                initMap();
+                
+                totalTurns = 0; 
+                turnIdx = 0; 
+                
+                addLog(`🚀 ${passedYears + 1}年目スタート！`);
+                render(); 
+
+                document.getElementById('rollBtn').style.display = 'block';
+                addLog(`🎲 ${players[turnIdx].name} の番です。`);
+            }, 500);
+        }
+        return;
       } else {
-          setTimeout(() => {
-              alert(`${p.name} がゴール！${currentYearNum}年目が終了しました。\n次の年へ進みます。`);
-
-              passedYears++; 
-
-              // --- 貧乏神の割り当てロジックの強化 ---
-              // 全員のボンビーフラグを一度リセット
-              players.forEach(pl => pl.hasBonby = false);
-
-              // 「ゴールまでの残りマス」が一番多い（＝posが一番小さい）人を特定
-              //
-              let farthestPlayer = players.reduce((prev, curr) => {
-                  return (prev.pos < curr.pos) ? prev : curr;
-              });
-
-              // 該当者に貧乏神を付与
-              farthestPlayer.hasBonby = true;
-              isBonbyActive = true; // ボンビーをアクティブにする
-
-              // 2. プレイ順の並び替え（ゴールに近い順）
-              players.sort((a, b) => b.pos - a.pos);
-
-              addLog(`😈 貧乏神は最後尾（あと${(TILE_COUNT - 1) - farthestPlayer.pos}マス）の <span style="color:${farthestPlayer.color}">${farthestPlayer.name}</span> につきました。`);
-
-              // 3. マップとプレイヤー位置のリセット
-              players.forEach(pl => pl.pos = 0);
-              initMap();
-              
-              totalTurns = 0; 
-              turnIdx = 0; 
-              
-              addLog(`🚀 ${passedYears + 1}年目スタート！`);
-              render(); 
-
-              document.getElementById('rollBtn').style.display = 'block';
-              addLog(`🎲 ${players[turnIdx].name} の番です。`);
-          }, 500);
-      }
-      return;
-    } else {
         handleLanding(p);
       }
     }
   }, 150);
 }
+
 
 function checkBonbyTransfer(movingPlayer) {
   if (!isBonbyActive) return;
@@ -368,21 +380,14 @@ function startRoulette(mode, callback) {
 document.getElementById('endTurnBtn').onclick = () => {
   const cp = players[turnIdx]; if (cp.hasBonby) triggerBonbyEvil(cp);
   const monthCount = Math.floor(totalTurns / players.length);
-  if (((monthCount + 3) % 12) + 1 === 3 && turnIdx === players.length - 1) {
-    addLog(`💰 決算！`);
-    players.forEach(p => {
-      let profit = 0; map.forEach(t => { if(t.type === 'property') t.properties.forEach(pr => { if(pr.owner === p.id) profit += Math.floor(pr.price * pr.profit); }); });
-      p.money += profit;
-    });
-  }
   
-// 終了判定
-// const totalMonthsPassed = Math.floor((totalTurns + 1) / players.length);
-// if (totalMonthsPassed >= maxYears * 12) {
-//   showFinalResults();
-//   return;
-// }
-// ↑ このブロックをすべてコメントアウト、または削除します
+  // 終了判定
+  // const totalMonthsPassed = Math.floor((totalTurns + 1) / players.length);
+  // if (totalMonthsPassed >= maxYears * 12) {
+  //   showFinalResults();
+  //   return;
+  // }
+  // ↑ このブロックをすべてコメントアウト、または削除します
 
   canBuyNow = false; document.getElementById('endTurnBtn').disabled = true; document.getElementById('rollBtn').style.display = 'block';
   turnIdx = (turnIdx + 1) % players.length; totalTurns++; currentDiceCount = 1; cardUsedThisTurn = false;
@@ -516,5 +521,26 @@ function formatMoneyJapanese(amount) {
   return formatted;
 }
 
+function processSettlement() {
+  addLog(`💰 <b style="color:#f39c12;">ゴール達成につき年度末決算！物件収益が入ります。</b>`);
+  players.forEach(p => {
+    let yearlyProfit = 0;
+    map.forEach(t => {
+      if (t.properties) {
+        t.properties.forEach(pr => {
+          if (pr.owner === p.id) {
+            yearlyProfit += Math.floor(pr.price * pr.profit);
+          }
+        });
+      }
+    });
+    if (yearlyProfit > 0) {
+      p.money += yearlyProfit;
+      addLog(`${p.name}: 物件利益 +${formatMoneyJapanese(yearlyProfit)}`);
+    }
+  });
+}
 
-initMap(); updateDiceVisuals(); render();
+initMap(); 
+updateDiceVisuals(); 
+render();
