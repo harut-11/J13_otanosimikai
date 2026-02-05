@@ -17,7 +17,7 @@ const PROP_POOL = {
   high: [{ name: "高級ホテル", price: 3000000000, profit: 0.05 }, { name: "プロ球団", price: 5000000000, profit: 0.03 }, { name: "超高層ビル", price: 10000000000, profit: 0.02 }, { name: "自動車工場", price: 8000000000, profit: 0.04 }, { name: "リゾート開発", price: 15000000000, profit: 0.01 }]
 };
 
-const REGIONS = ["北海道", "関東", "中部", "近畿", "中国", "四国", "九州"];
+const REGIONS = ["北海道", "東海","関東", "中部", "近畿", "中国", "四国", "九州"];
 const TILE_TYPES = ['plus', 'minus', 'card', 'property', 'special'];
 const TILES_PER_REGION = 10;
 const TILE_COUNT = REGIONS.length * TILES_PER_REGION;
@@ -508,3 +508,4 @@ function formatMoneyJapanese(amount) {
 
 
 initMap(); updateDiceVisuals(); render();
+
