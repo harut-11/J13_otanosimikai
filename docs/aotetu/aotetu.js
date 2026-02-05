@@ -199,7 +199,6 @@ function movePlayer(dice) {
         }
         return; // ゴールした場合はここで関数を抜ける（handleLandingを呼ばせない）
       } else {
-        addLog(`${p.name} はゴールを通り過ぎてしまった！`);
         handleLanding(p);
       }
     }
@@ -413,7 +412,7 @@ document.getElementById('rollBtn').onclick = () => {
 };
 
 document.getElementById('stopBtn').onclick = () => {
-  // ★ ストップボタンを即座に消して連打を防止
+  // ストップボタンを即座に消して連打を防止
   document.getElementById('stopBtn').style.display = 'none';
   
   let total = 0; 
@@ -432,7 +431,6 @@ document.getElementById('stopBtn').onclick = () => {
   }, 800);
 };
 
-// aotetu.js の useCard 関数を以下のように修正・追記
 function useCard(idx) {
   if (cardUsedThisTurn || document.getElementById('rollBtn').style.display === 'none') return;
   const cp = players[turnIdx];
@@ -507,5 +505,6 @@ function formatMoneyJapanese(amount) {
   }
   return formatted;
 }
+
 
 initMap(); updateDiceVisuals(); render();
