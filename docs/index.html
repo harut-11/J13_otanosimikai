@@ -1,32 +1,151 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>エリア８</title>
-    <style>
-        .aotetu-btn {
-            background-color: #007bff; /* 青色 */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        .aotetu-btn:hover {
-            background-color: #0056b3; /* ホバー時に少し暗く */
-        }
-    </style>
+<meta charset="UTF-8">
+<title>エリア８</title>
+<style>
+body {
+    margin: 0; height: 100vh; overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(circle at top, #222, #000);
+    font-family: "Segoe UI", sans-serif; color: #fff;
+}
+
+/* フェードイン演出 */
+.wrapper { opacity: 0; transform: scale(.9); animation: show 1s forwards; }
+@keyframes show { to { opacity: 1; transform: scale(1); } }
+
+.title {
+    font-size: 22px; letter-spacing: 2px; margin-bottom: 25px;
+    color: #0ff; text-align: center;
+    text-shadow: 0 0 6px #0ff;
+}
+.title.glitch { text-shadow: 2px 0 #f0f, -2px 0 #0ff; }
+
+.menu { width: 260px; display: flex; flex-direction: column; gap: 15px; }
+
+/* ボタンの基本設定 */
+.menu a {
+    padding: 18px; text-align: center;
+    color: #0ff; text-decoration: none; font-size: 18px;
+    border: 2px solid #0ff; border-radius: 10px;
+    background: rgba(0, 0, 0, .6);
+    box-shadow: 0 0 10px rgba(0, 255, 255, .4);
+    transition: .2s;
+    cursor: pointer; /* マウスを乗せた時に指マークにする */
+    user-select: none; /* テキスト選択を無効化 */
+}
+
+/* ホバー時の設定 */
+.menu a:hover {
+    background: #0ff; color: #000;
+    box-shadow: 0 0 20px #0ff;
+    transform: scale(1.05);
+}
+
+/* クリック時のグリッチ演出 */
+.menu a.glitch {
+    animation: g .25s linear;
+    text-shadow: 2px 0 #f0f, -2px 0 #0ff;
+}
+@keyframes g {
+    20% { transform: scale(1.05) translateX(-2px); }
+    40% { transform: scale(1.05) translateX(2px); }
+    60% { transform: scale(1.05) translateX(-1px); }
+    80% { transform: scale(1.05) translateX(1px); }
+}
+
+/* 走査線（ノイズ） */
+.noise {
+    position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, .015) 0 1px,
+        transparent 1px 4px
+    );
+    animation: n .15s infinite;
+}
+@keyframes n { to { transform: translateY(3px); } }
+
+canvas { position: fixed; inset: 0; z-index: -1; }
+</style>
 </head>
 <body>
-    <h1>エリア8</h1>
-    
-    <button class="aotetu-btn" onclick="location.href='aotetu/home.html'">青鉄</button>
-  <button class="aotetu-btn" onclick="location.href='Game2/index.html'">坪内の野望</button>
-  <button class="aotetu-btn" onclick="location.href='mysiipar/index.html'">マインスイーパー</button>
+
+<canvas id="bg"></canvas>
+<div class="noise"></div>
+
+<div class="wrapper">
+    <div class="title" id="title">GAME MENU</div>
+    <div class="menu">
+        <a data-i="0">▶ 青鉄</a>
+        <a data-i="1">▶ 坪内の野望</a>
+        <a data-i="2">▶ マインスイーパー</a>
+    </div>
+</div>
+
+<script>
+// ===== URLリストの設定 =====
+// ===== URLリストの設定（修正版） =====
+const urlList = [
+    "./aotetu/home.html",      // 青鉄（home.html を指定）
+    "./Game2/index.html",      // 坪内の野望（大文字のG、index.htmlまで指定）
+    "./mysiipar/index.html",   // マインスイーパー（index.htmlまで指定）
+];
+
+// --- 背景粒子のアニメーション ---
+const c = document.getElementById("bg");
+const ctx = c.getContext("2d");
+const t = document.getElementById("title");
+let w, h, p = [];
+
+onresize = () => { w = c.width = innerWidth; h = c.height = innerHeight; };
+onresize();
+
+for(let i = 0; i < 70; i++)
+    p.push({ x: Math.random() * w, y: Math.random() * h, r: 1 + Math.random() * 2, v: .1 + Math.random() * .3 });
+
+(function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#0ff"; ctx.globalAlpha = .6;
+    p.forEach(a => {
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r, 0, 6.28);
+        ctx.fill();
+        a.y += a.v; if (a.y > h) a.y = 0;
+    });
+    requestAnimationFrame(draw);
+})();
+
+// --- メニューボタンの制御 ---
+document.querySelectorAll(".menu a").forEach(button => {
+    // ホバーした時のグリッチ演出
+    button.onmouseenter = () => {
+        button.classList.remove("glitch");
+        void button.offsetWidth; // リフローを強制してアニメーションをリセット
+        button.classList.add("glitch");
+    };
+
+    // クリックした時のページ遷移
+    button.addEventListener('click', () => {
+        const index = button.dataset.i;
+        const targetUrl = urlList[index];
+
+        if (targetUrl) {
+            // 少しだけ演出を見せてから遷移（任意）
+            setTimeout(() => {
+                location.href = targetUrl;
+            }, 100);
+        }
+    });
+});
+
+// タイトルの定期的グリッチ
+setInterval(() => {
+    t.classList.add("glitch");
+    setTimeout(() => t.classList.remove("glitch"), 120);
+}, 4000 + Math.random() * 3000);
+</script>
+
 </body>
 </html>
-
-
-
