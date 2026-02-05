@@ -1,0 +1,397 @@
+/* 物件購入ボタンのサイズをさらに小さく調整 */
+.prop-btn {
+    background: #ff9d0b;
+    color: #fff;
+    border: none;
+    padding: 2px 8px;
+    /* 上下のパディングを2pxまで縮小 */
+    border-radius: 3px;
+    /* ボタンが小さいので角丸も控えめに */
+    cursor: pointer;
+    font-size: 0.75rem;
+    /* 文字をさらに一回り小さく */
+    font-weight: bold;
+    line-height: 1;
+    /* 行の高さを最小限に設定 */
+    height: auto;
+    /* 高さを自動調整 */
+    min-height: 18px;
+    /* 最低限のクリック領域を確保 */
+    transition: background 0.2s;
+}
+
+.prop-btn:hover {
+    background: #ffd9a0;
+}
+
+.prop-btn:disabled {
+    background: #e7a542;
+    cursor: not-allowed;
+}
+
+:root {
+    --tile-size: 100px;
+    --board-cols: 5;
+    --accent: #e76f51;
+    --dice-size: 60px;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #c2e0ff;
+    margin: 0;
+    align-items: flex-start;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.region-header {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--accent);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.board-container {
+    display: grid;
+    grid-template-columns: repeat(var(--board-cols), var(--tile-size));
+    gap: 12px;
+    padding: 20px;
+    position: relative;
+}
+
+.tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    text-align: center;
+    position: relative;
+    border-bottom: 5px solid #ccc;
+    box-sizing: border-box;
+}
+
+.type-start {
+    background: #fffde7;
+    border-bottom-color: #fdd835;
+}
+
+.type-plus {
+    background: #e3f2fd;
+    border-bottom-color: #2196f3;
+    color: #0d47a1;
+}
+
+.type-minus {
+    background: #ffebee;
+    border-bottom-color: #f44336;
+    color: #b71c1c;
+}
+
+.type-card {
+    background: #fff3e0;
+    border-bottom-color: #ff9800;
+}
+
+.type-property {
+    background: #f3e5f5;
+    border-bottom-color: #9c27b0;
+}
+
+.type-special {
+    background: #e8f5e9;
+    border-bottom-color: #4caf50;
+}
+
+.type-goal {
+    background: #fff9c4;
+    border: 4px double #fbc02d;
+    border-bottom: 5px solid #fbc02d;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px #fdd835;
+    }
+
+    to {
+        box-shadow: 0 0 20px #fdd835;
+    }
+}
+
+.right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.main-controls-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: stretch;
+}
+
+.control-card {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.info-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.card-container {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.player-token {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border: 2px solid #fff;
+}
+
+.bonby-mark {
+    position: absolute;
+    top: -18px;
+    font-size: 20px;
+    filter: drop-shadow(0 0 2px black);
+}
+
+#slotOverlay,
+#resultOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    color: white;
+}
+
+#slotMachine {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 30px;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffaa00;
+    text-align: center;
+    min-height: 100px;
+}
+
+.darts-spin {
+    display: inline-block;
+    animation: spinAnim 0.1s infinite linear;
+}
+
+.darts-spin img {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+}
+
+@keyframes spinAnim {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#slotStopBtn,
+.reset-btn {
+    background: #e63946;
+    padding: 15px 50px;
+    font-size: 1.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+.result-card {
+    background: white;
+    color: #333;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.dice-scene {
+    width: 100%;
+    min-height: 80px;
+    perspective: 600px;
+    margin: 15px auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dice-cube {
+    width: var(--dice-size);
+    height: var(--dice-size);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease-out;
+}
+
+.dice-face {
+    position: absolute;
+    width: var(--dice-size);
+    height: var(--dice-size);
+    background: white;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.face-1 {
+    transform: rotateY(0deg) translateZ(30px);
+    color: red;
+}
+
+.face-2 {
+    transform: rotateY(90deg) translateZ(30px);
+}
+
+.face-3 {
+    transform: rotateX(90deg) translateZ(30px);
+}
+
+.face-4 {
+    transform: rotateX(-90deg) translateZ(30px);
+}
+
+.face-5 {
+    transform: rotateY(-90deg) translateZ(30px);
+}
+
+.face-6 {
+    transform: rotateY(180deg) translateZ(30px);
+}
+
+.dice-rolling {
+    animation: rollAnim 0.15s infinite linear;
+}
+
+@keyframes rollAnim {
+    100% {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}
+
+button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 5px;
+}
+
+button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.log {
+    height: 120px;
+    overflow-y: auto;
+    font-size: 12px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+}
+
+.inventory {
+    margin-top: 10px;
+    font-size: 11px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    max-height: 70px;
+    overflow-y: auto;
+    background: #fdfdfd;
+}
+
+.item-btn {
+    background: #457b9d;
+    font-size: 10px;
+    padding: 4px;
+    margin: 2px 0;
+    border: 1px solid #1d3557;
+}
+
+.desc-box {
+    background: #fffde7;
+    border-left: 4px solid #fbc02d;
+    padding: 8px;
+    font-size: 12px;
+    min-height: 40px;
+    margin-top: 5px;
+    color: #333;
+}
+
+.my-properties {
+    margin-top: 10px;
+    font-size: 11px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    max-height: 100px;
+    overflow-y: auto;
+    background: #f1f8e9;
+}
+.money-minus {
+    color: #e63946 !important;
+    font-weight: bold;
+}
