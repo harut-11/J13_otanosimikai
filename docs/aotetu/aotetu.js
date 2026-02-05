@@ -27,7 +27,13 @@ const players = Array.from({length: playerCount}, (_, i) => {
   return { id: i, name: nameParam ? decodeURIComponent(nameParam) : `プレイヤー${i+1}`, money: 0, pos: 0, color: ['#e63946', '#457b9d', '#2a9d8f', '#f4a261'][i], cards: [], hasBonby: false };
 });
 
-let turnIdx = 0; let totalTurns = 0; let currentDiceCount = 1; let cardUsedThisTurn = false; let canBuyNow = false; const map = []; let isBonbyActive = false;
+let turnIdx = 0; 
+let passedYears = 0;
+let totalTurns = 0; 
+let currentDiceCount = 1; 
+let cardUsedThisTurn = false; 
+let canBuyNow = false; const map = []; 
+let isBonbyActive = false;
 
 function initMap() {
   map.length = 0; // 配列を空にする
@@ -68,12 +74,8 @@ function initMap() {
 }
 
 function render() {
-  const yearsPassed = Math.floor(totalTurns / (players.length * 12));
-  const monthCount = Math.floor(totalTurns / players.length);
-  const m = ((monthCount + 3) % 12) + 1;
-  const season = (m >= 6 && m <= 8) ? "夏" : (m >= 9 && m <= 11) ? "秋" : (m === 12 || m <= 2) ? "冬" : "春";
-  document.getElementById('monthDisplay').textContent = `${m}月 (${season})`;
-  document.getElementById('yearLabel').textContent = `${yearsPassed + 1}年目 / ${maxYears}年`;
+  const displayYear = passedYears + 1;
+  document.getElementById('yearLabel').textContent = `${displayYear}年目 / ${maxYears}年`;
   
   const tileLayer = document.getElementById('tile-layer');
   const cp = players[turnIdx];
@@ -94,7 +96,7 @@ function render() {
     tileLayer.appendChild(div);
   });
 
-  document.getElementById('currentPlayerDisplay').textContent = cp.name + (cp.hasBonby ? " (憑)" : "");
+  document.getElementById('currentPlayerDisplay').textContent = cp.name + (cp.hasBonby ? " (貧)" : "");
   document.getElementById('currentPlayerDisplay').style.color = cp.color;
   document.getElementById('moneyDisplay').innerHTML = formatMoneyJapanese(cp.money);
   
@@ -119,7 +121,6 @@ function render() {
   document.getElementById('myPropertyList').innerHTML = myProps.length === 0 ? "なし" : myProps.map(pr => `<div class="prop-item">${pr.name} (${pr.stationName})</div>`).join('');
 }
 
-// --- movePlayer 関数内の次年度更新ロジックを修正 ---
 // --- movePlayer 関数内のゴール到達判定部分を修正 ---
 function movePlayer(dice) {
   let steps = 0;
@@ -150,58 +151,61 @@ function movePlayer(dice) {
     if (steps >= dice) {
       clearInterval(interval);
 
-      // --- movePlayer 関数内のゴール到達判定部分を修正 ---
+  // --- movePlayer 関数内のゴール判定部分 ---
   if (p.pos === TILE_COUNT - 1) {
-    addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！`);
-    
-    document.getElementById('rollBtn').style.display = 'none';
-    document.getElementById('stopBtn').style.display = 'none';
-    document.getElementById('endTurnBtn').disabled = true;
+      addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！`);
+      
+      document.getElementById('rollBtn').style.display = 'none';
+      document.getElementById('stopBtn').style.display = 'none';
+      document.getElementById('endTurnBtn').disabled = true;
 
-    if (!isBonbyActive) {
-        isBonbyActive = true;
-        addLog(`📢 貧乏神が現れました！`);
-    }
+      const currentYearNum = passedYears + 1;
 
-    const currentYear = Math.floor(totalTurns / (players.length * 12)) + 1;
+      if (currentYearNum >= maxYears) {
+          setTimeout(() => {
+              alert(`${p.name} がゴール！${maxYears}年間の全日程を終了しました。`);
+              showFinalResults();
+          }, 500);
+      } else {
+          setTimeout(() => {
+              alert(`${p.name} がゴール！${currentYearNum}年目が終了しました。\n次の年へ進みます。`);
 
-    if (currentYear >= maxYears) {
-        setTimeout(() => {
-            alert(`${p.name} が最終ゴール！全日程を終了します。`);
-            showFinalResults();
-        }, 500);
-    } else {
-        setTimeout(() => {
-            alert(`${p.name} がゴール！${currentYear}年目が終了しました。\n次の年へ進みます。`);
+              passedYears++; 
 
-            // 1. 貧乏神の割り当て（リセット前に行う）
-            players.forEach(pl => pl.hasBonby = false);
-            let farthestPlayer = players.reduce((prev, curr) => (prev.pos < curr.pos) ? prev : curr);
-            farthestPlayer.hasBonby = true;
-            
-            // 2. プレイ順の並び替え：ゴールに近い（posが大きい）順
-            // slice() でコピーを作ってからソートし、元のplayers配列を更新します
-            players.sort((a, b) => b.pos - a.pos);
+              // --- 貧乏神の割り当てロジックの強化 ---
+              // 全員のボンビーフラグを一度リセット
+              players.forEach(pl => pl.hasBonby = false);
 
-            addLog(`😈 貧乏神は最後尾の <span style="color:${farthestPlayer.color}">${farthestPlayer.name}</span> につきました。`);
-            addLog(`🏃 次の年はゴールに近かった <span style="color:${players[0].color}">${players[0].name}</span> から開始します。`);
+              // 「ゴールまでの残りマス」が一番多い（＝posが一番小さい）人を特定
+              //
+              let farthestPlayer = players.reduce((prev, curr) => {
+                  return (prev.pos < curr.pos) ? prev : curr;
+              });
 
-            // 3. 全員の座標をリセットし、マップを再生成
-            players.forEach(pl => pl.pos = 0);
-            initMap();
-            
-            // 4. ターン管理のリセット
-            totalTurns = currentYear * players.length * 12;
-            turnIdx = 0; // ソート済みのplayers[0]が最初の番になる
-            
-            addLog(`🚀 ${currentYear + 1}年目スタート！`);
-            render();
+              // 該当者に貧乏神を付与
+              farthestPlayer.hasBonby = true;
+              isBonbyActive = true; // ボンビーをアクティブにする
 
-            document.getElementById('rollBtn').style.display = 'block';
-            addLog(`🎲 ${players[turnIdx].name} の番です。`);
-        }, 500);
-    }
-    return;
+              // 2. プレイ順の並び替え（ゴールに近い順）
+              players.sort((a, b) => b.pos - a.pos);
+
+              addLog(`😈 貧乏神は最後尾（あと${(TILE_COUNT - 1) - farthestPlayer.pos}マス）の <span style="color:${farthestPlayer.color}">${farthestPlayer.name}</span> につきました。`);
+
+              // 3. マップとプレイヤー位置のリセット
+              players.forEach(pl => pl.pos = 0);
+              initMap();
+              
+              totalTurns = 0; 
+              turnIdx = 0; 
+              
+              addLog(`🚀 ${passedYears + 1}年目スタート！`);
+              render(); 
+
+              document.getElementById('rollBtn').style.display = 'block';
+              addLog(`🎲 ${players[turnIdx].name} の番です。`);
+          }, 500);
+      }
+      return;
     } else {
         handleLanding(p);
       }
@@ -511,4 +515,6 @@ function formatMoneyJapanese(amount) {
 }
 
 
-initMap(); updateDiceVisuals(); render();
+initMap(); 
+updateDiceVisuals(); 
+render();
