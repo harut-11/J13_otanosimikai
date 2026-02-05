@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マインスイーパー</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981'
+                    },
+                    borderRadius: {
+                        'none': '0px',
+                        'sm': '4px',
+                        DEFAULT: '8px',
+                        'md': '12px',
+                        'lg': '16px',
+                        'xl': '20px',
+                        '2xl': '24px',
+                        '3xl': '32px',
+                        'full': '9999px',
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-gray-800 mb-2 font-['Pacifico']">マインスイーパー</h1>
+            <p class="text-gray-600 text-lg">現代的なインターフェースのクラシックゲーム</p>
+        </header>
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-4">
+                        <label class="text-sm font-medium text-gray-700">難易度:</label>
+                        <select id="difficulty"
+                            class="border border-gray-300 rounded-button px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="easy">初級 (9x9, 10個の地雷)</option>
+                            <option value="medium">中級 (16x16, 40個の地雷)</option>
+                            <option value="hard">上級 (30x16, 99個の地雷)</option>
+                        </select>
+                    </div>
+                    <button id="restartBtn"
+                        class="bg-primary text-white px-4 py-2 rounded-button hover:bg-blue-600 transition-colors whitespace-nowrap !rounded-button cursor-pointer">
+                        <div class="w-4 h-4 flex items-center justify-center mr-2 inline-block">
+                            <i class="ri-restart-line"></i>
+                        </div>
+                        リスタート
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600" id="mineCount">10</div>
+                            <div class="text-xs text-gray-500">残り地雷</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="timer">000</div>
+                            <div class="text-xs text-gray-500">時間</div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-medium" id="gameStatus">プレイ中</div>
+                        <div class="text-xs text-gray-500">ステータス</div>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <div id="gameBoard" class="inline-block border-2 border-gray-400 rounded-lg overflow-hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="gameOverModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full" id="modalIcon">
+                    <i class="ri-trophy-line text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2" id="modalTitle">おめでとうございます！</h3>
+                <p class="text-gray-600 mb-4" id="modalMessage">勝利です！</p>
+                <div class="text-lg font-medium mb-6" id="modalTime">時間: 123秒</div>
+                <div class="flex gap-3">
+                    <button id="closeModal"
+                        class="flex-1 bg-primary text-white py-2 px-4 rounded-button hover:bg-blue-600 transition-colors whitespace-nowrap !rounded-button cursor-pointer">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

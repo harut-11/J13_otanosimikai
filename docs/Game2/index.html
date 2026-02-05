@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>都道府県戦国時代 - 坪内将軍の野望</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="header">
+            <h1>神戸電子皇帝坪内の野望</h1>
+            <p>将軍：坪内 | ターン: <span id="turn-count">1</span></p>
+        </div>
+
+        <div id="main-content">
+            <div id="map-container">
+                <canvas id="game-map" width="1600" height="1200"></canvas>
+            </div>
+
+            <div id="sidebar">
+                <div id="selected-territory">
+                    <h3>選択された領土</h3>
+                    <div id="territory-info">
+                        <p>領土を選択してください</p>
+                    </div>
+                </div>
+
+                <div id="player-stats">
+                    <h3>プレイヤー統計</h3>
+                    <p>領土数: <span id="territory-count">0</span>/47</p>
+                    <p>総兵力: <span id="total-troops">0</span></p>
+                    <p>資金: <span id="gold">1000</span></p>
+                </div>
+
+                <div id="actions">
+                    <h3>アクション</h3>
+                    <button id="train-troops">兵を訓練 (100G)</button>
+                    <button id="attack-territory">攻撃</button>
+                    <button id="end-turn">ターン終了</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bottom-panel">
+            <p id="log-message">ゲームを開始しました。領土を選択して拡大していきましょう。</p>
+        </div>
+
+        <div id="popup-overlay" class="hidden"></div>
+        <div id="popup-message" class="hidden">
+            <div class="popup-content">
+                <p id="popup-text"></p>
+            </div>
+        </div>
+
+        <div id="attack-menu-overlay" class="hidden"></div>
+        <div id="attack-menu" class="hidden">
+            <div class="menu-content">
+                <h3 id="attack-title">攻撃先を選択してください</h3>
+                <div id="attack-buttons"></div>
+                <button id="cancel-attack" style="width: 100%; padding: 10px; margin-top: 15px; background-color: #95a5a6; color: white; border: none; cursor: pointer; border-radius: 5px;">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="map.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
