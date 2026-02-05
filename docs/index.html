@@ -100,6 +100,24 @@ body {
 }
 @keyframes n { to { transform: translateY(3px); } }
 
+/* 右下の注意書きスタイル */
+.pc-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 12px;
+    color: #0ff;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px #0ff;
+    pointer-events: none;
+    animation: pulse 2s infinite alternate;
+}
+@keyframes pulse {
+    from { opacity: 0.3; }
+    to { opacity: 0.8; }
+}
+
 canvas { position: fixed; inset: 0; z-index: -1; }
 </style>
 </head>
@@ -107,6 +125,8 @@ canvas { position: fixed; inset: 0; z-index: -1; }
 
 <canvas id="bg"></canvas>
 <div class="noise"></div>
+
+<div class="pc-notice">※パソコンで遊んでください</div>
 
 <div class="wrapper">
     <div id="desc-panel" class="description-panel">
@@ -206,6 +226,3 @@ setInterval(() => {
 
 </body>
 </html>
-
-
-
