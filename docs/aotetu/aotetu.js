@@ -62,12 +62,31 @@ function initMap() {
       case 'card': title = "カード駅"; break;
       case 'property': 
         title = `${region}の駅`;
-        let pool = i < 20 ? [...PROP_POOL.low] : (i < 50 ? [...PROP_POOL.low, ...PROP_POOL.mid] : [...PROP_POOL.mid, ...PROP_POOL.high]);
-        for(let j=0; j < (4 + Math.floor(Math.random() * 5)); j++) { 
+        // --- 修正箇所：物件プールの選定バランスを調整 ---
+        let pool = [];
+        // 常に低価格帯は含める
+        pool.push(...PROP_POOL.low);
+        
+        // 中盤以降（20マス目〜）は中価格帯を追加
+        if (i >= 20) pool.push(...PROP_POOL.mid);
+        
+        // 終盤（50マス目〜）は高価格帯を追加
+        if (i >= 50) pool.push(...PROP_POOL.high);
+
+        // 抽選：各価格帯からランダムに4〜8件選出
+        // 重複を避けるためシャッフルして抽出
+        let selection = [];
+        let count = 4 + Math.floor(Math.random() * 5);
+        
+        for(let j=0; j < count; j++) { 
             const tpl = pool[Math.floor(Math.random() * pool.length)]; 
-            properties.push({...tpl, owner: null, stationName: title}); 
+            // 参照ではなくコピーを作成
+            selection.push({...tpl, owner: null, stationName: title}); 
         }
-        properties.sort((a, b) => a.price - b.price); break;
+        
+        // 表示順を金額の昇順（安い順）に整列
+        properties = selection.sort((a, b) => a.price - b.price); 
+        break;
       case 'special': title = Math.random() < 0.2 ? "宝くじ駅" : "先生駅"; break;
     }
     map.push({ ...tile, id: i, region, title, properties });
@@ -455,10 +474,18 @@ function useCard(idx) {
     currentDiceCount = card.dice; 
     updateDiceVisuals(); 
   } else if (card.type === "warp") { 
-    cp.pos = Math.floor(Math.random() * TILE_COUNT); 
-    addLog(`${cp.name}: ${card.name}でどこかへ飛んだ！`);
+    // 1. ゴール以外のマスへランダム移動
+    cp.pos = Math.floor(Math.random() * (TILE_COUNT - 1)); 
+    addLog(`🚀 ${cp.name}: ${card.name}でどこかへ飛んだ！`);
+
+    // サイコロボタンを隠し、移動を確定させる
+    document.getElementById('rollBtn').style.display = 'none';
+
+    // 着地したマスのイベント（物件購入やプラス駅など）を発生させる
+    handleLanding(cp);
+
     if (isBonbyActive) assignBonbyToFarthest();
-  } else if (card.type === "money") { 
+  } else if (card.type === "money") {
     
     // 1. 徳政令カードの場合の処理
     if (card.name === "徳政令カード") {
@@ -541,6 +568,4 @@ function processSettlement() {
   });
 }
 
-initMap(); 
-updateDiceVisuals(); 
-render();
+initMap(); updateDiceVisuals(); render();
