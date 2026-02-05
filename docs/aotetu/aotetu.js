@@ -150,55 +150,59 @@ function movePlayer(dice) {
     if (steps >= dice) {
       clearInterval(interval);
 
-      // 【修正ポイント】ゴールにピッタリ止まったか判定
-      if (p.pos === TILE_COUNT - 1) {
-        addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！`);
-        
-        // サイコロボタン類を完全に隠す（操作不能にする）
-        document.getElementById('rollBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'none';
-        document.getElementById('endTurnBtn').disabled = true;
+      // --- movePlayer 関数内のゴール到達判定部分を修正 ---
+  if (p.pos === TILE_COUNT - 1) {
+    addLog(`🚩 <span style="color:${p.color}">${p.name}</span> が九州ゴールに到着！`);
+    
+    document.getElementById('rollBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('endTurnBtn').disabled = true;
 
-        if (!isBonbyActive) {
-          isBonbyActive = true;
-          addLog(`📢 貧乏神が現れました！`);
-        }
+    if (!isBonbyActive) {
+        isBonbyActive = true;
+        addLog(`📢 貧乏神が現れました！`);
+    }
 
-        const currentYear = Math.floor(totalTurns / (players.length * 12)) + 1;
+    const currentYear = Math.floor(totalTurns / (players.length * 12)) + 1;
 
-        if (currentYear >= maxYears) {
-          setTimeout(() => {
+    if (currentYear >= maxYears) {
+        setTimeout(() => {
             alert(`${p.name} が最終ゴール！全日程を終了します。`);
             showFinalResults();
-          }, 500);
-        } else {
-          setTimeout(() => {
+        }, 500);
+    } else {
+        setTimeout(() => {
             alert(`${p.name} がゴール！${currentYear}年目が終了しました。\n次の年へ進みます。`);
 
-            // 順位入れ替えと貧乏神の付与
-            players.sort((a, b) => b.pos - a.pos);
+            // 1. 貧乏神の割り当て（リセット前に行う）
             players.forEach(pl => pl.hasBonby = false);
-            const lastPlayer = players[players.length - 1];
-            lastPlayer.hasBonby = true;
+            let farthestPlayer = players.reduce((prev, curr) => (prev.pos < curr.pos) ? prev : curr);
+            farthestPlayer.hasBonby = true;
+            
+            // 2. プレイ順の並び替え：ゴールに近い（posが大きい）順
+            // slice() でコピーを作ってからソートし、元のplayers配列を更新します
+            players.sort((a, b) => b.pos - a.pos);
 
-            // 全員リセット
+            addLog(`😈 貧乏神は最後尾の <span style="color:${farthestPlayer.color}">${farthestPlayer.name}</span> につきました。`);
+            addLog(`🏃 次の年はゴールに近かった <span style="color:${players[0].color}">${players[0].name}</span> から開始します。`);
+
+            // 3. 全員の座標をリセットし、マップを再生成
             players.forEach(pl => pl.pos = 0);
             initMap();
             
-            // 年数スキップ処理
+            // 4. ターン管理のリセット
             totalTurns = currentYear * players.length * 12;
-            turnIdx = 0;
+            turnIdx = 0; // ソート済みのplayers[0]が最初の番になる
             
             addLog(`🚀 ${currentYear + 1}年目スタート！`);
             render();
 
-            // 【重要】次の年の最初の人のためにサイコロボタンを再表示する
             document.getElementById('rollBtn').style.display = 'block';
             addLog(`🎲 ${players[turnIdx].name} の番です。`);
-          }, 500);
-        }
-        return; // ゴールした場合はここで関数を抜ける（handleLandingを呼ばせない）
-      } else {
+        }, 500);
+    }
+    return;
+    } else {
         handleLanding(p);
       }
     }
@@ -508,5 +512,3 @@ function formatMoneyJapanese(amount) {
 
 
 initMap(); updateDiceVisuals(); render();
-
-
