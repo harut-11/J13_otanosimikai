@@ -35,6 +35,7 @@ let cardUsedThisTurn = false;
 let canBuyNow = false; const map = []; 
 let isBonbyActive = false;
 
+
 function initMap() {
   map.length = 0; // 配列を空にする
   const tempTiles = [];
@@ -375,12 +376,13 @@ document.getElementById('endTurnBtn').onclick = () => {
     });
   }
   
-  // 終了判定
-  const totalMonthsPassed = Math.floor((totalTurns + 1) / players.length);
-  if (totalMonthsPassed >= maxYears * 12) {
-    showFinalResults();
-    return;
-  }
+// 終了判定
+// const totalMonthsPassed = Math.floor((totalTurns + 1) / players.length);
+// if (totalMonthsPassed >= maxYears * 12) {
+//   showFinalResults();
+//   return;
+// }
+// ↑ このブロックをすべてコメントアウト、または削除します
 
   canBuyNow = false; document.getElementById('endTurnBtn').disabled = true; document.getElementById('rollBtn').style.display = 'block';
   turnIdx = (turnIdx + 1) % players.length; totalTurns++; currentDiceCount = 1; cardUsedThisTurn = false;
@@ -515,6 +517,4 @@ function formatMoneyJapanese(amount) {
 }
 
 
-initMap(); 
-updateDiceVisuals(); 
-render();
+initMap(); updateDiceVisuals(); render();
