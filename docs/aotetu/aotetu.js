@@ -14,7 +14,7 @@ const CARD_DATA = [
 const PROP_POOL = {
   low: [{ name: "おにぎり屋", price: 10000000, profit: 0.8 }, { name: "駄菓子屋", price: 5000000, profit: 1.0 }, { name: "地元定食屋", price: 30000000, profit: 0.4 }, { name: "たこ焼き屋", price: 50000000, profit: 0.5 }, { name: "うどん屋", price: 20000000, profit: 0.6 }],
   mid: [{ name: "観光農園", price: 100000000, profit: 0.2 }, { name: "ご当地デパート", price: 500000000, profit: 0.1 }, { name: "水産加工工場", price: 300000000, profit: 0.15 }, { name: "老舗旅館", price: 800000000, profit: 0.08 }, { name: "サファリパーク", price: 1200000000, profit: 0.06 }],
-  high: [{ name: "高級ホテル", price: 3000000000, profit: 0.05 }, { name: "プロ球団", price: 5000000000, profit: 0.03 }, { name: "超高層ビル", price: 10000000000, profit: 0.02 }, { name: "自動車工場", price: 8000000000, profit: 0.04 }, { name: "リゾート開発", price: 15000000000, profit: 0.01 }]
+  high: [{ name: "高級ホテル", price: 3000000000, profit: 0.05 }, { name: "阪神タイガース", price: 5000000000, profit: 0.03 }, { name: "超高層ビル", price: 10000000000, profit: 0.02 }, { name: "自動車工場", price: 8000000000, profit: 0.04 }, { name: "リゾート開発", price: 15000000000, profit: 0.01 }]
 };
 
 const REGIONS = ["北海道", "東北","関東", "中部", "近畿", "中国", "四国", "九州"];
@@ -416,8 +416,15 @@ document.getElementById('endTurnBtn').onclick = () => {
 function showFinalResults() {
   const overlay = document.getElementById('resultOverlay');
   const rankingList = document.getElementById('finalRankings');
+  
+  // 所持金で降順ソート
   const sorted = [...players].sort((a, b) => b.money - a.money);
-  rankingList.innerHTML = sorted.map((p, i) => `<div>${i+1}位: ${p.name} <br> <span style="font-weight:bold; color:#2a9d8f;">${p.money.toLocaleString()}</span></div>`).join('');
+  
+  // 金額表示部分に formatMoneyJapanese を適用
+  rankingList.innerHTML = sorted.map((p, i) => {
+    return `<div>${i+1}位: ${p.name} <br> <span style="font-weight:bold; color:#2a9d8f;">${formatMoneyJapanese(p.money)}</span></div>`;
+  }).join('');
+  
   overlay.style.display = 'flex';
 }
 
@@ -568,6 +575,4 @@ function processSettlement() {
   });
 }
 
-initMap(); 
-updateDiceVisuals(); 
-render();
+initMap(); updateDiceVisuals(); render();
